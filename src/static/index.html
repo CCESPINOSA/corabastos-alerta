@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#15372f" />
+  <title>Alerta Temprana Papa · Corabastos (ETITC)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Alerta Papa Corabastos, inicio">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>Alerta<br><b>Papa</b></span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a href="#panorama">Panorama</a>
+      <a href="#modelos">Modelos (Semana 3)</a>
+      <a href="#precios">Precios</a>
+      <a href="#calidad">Calidad (Big Data)</a>
+      <a href="#lluvias">Lluvias IDEAM</a>
+      <a href="#metodo">Metodología</a>
+    </nav>
+    <button id="refreshButton" class="refresh" type="button"><span class="refresh-icon">↻</span> Actualizar datos oficiales</button>
+  </header>
+
+  <main id="inicio">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">ETITC · Facultad de Sistemas · Ciencia de Datos y Big Data</p>
+        <h1>Alerta temprana de<br><em>picos de precio</em></h1>
+        <p class="lead">Prototipo predictivo para <strong>Papa negra</strong> y <strong>Papa criolla</strong> en <strong>Corabastos (Bogotá)</strong> a <strong>14 días</strong> con datos oficiales del SIPSA (DANE) y precipitación del IDEAM.</p>
+        
+        <div class="authors-badge">
+          <small>Integrantes:</small> Cristian Camilo Espinosa Rojas (1233689627) · Michael Alexander Pinzón Villalobos (1032472871) · Juan Esteban Joven Isaza (1018506083) | <small>Docente:</small> Karen Paola Martínez Orjuela
+        </div>
+
+        <div id="statusLine" class="status-line" aria-live="polite"><span class="status-dot"></span> Consultando datos oficiales...</div>
+      </div>
+      <div class="hero-field" aria-hidden="true">
+        <div class="horizon h1"></div><div class="horizon h2"></div><div class="horizon h3"></div>
+        <span class="hill hill-one"></span><span class="hill hill-two"></span>
+        <div class="tuber t1"></div><div class="tuber t2"></div><div class="tuber t3"></div><div class="tuber t4"></div><div class="tuber t5"></div>
+        <div class="field-note"><span>14 días</span><small>horizonte de alerta (+20% alza)</small></div>
+      </div>
+    </section>
+
+    <!-- 1. PANORAMA DE RIESGO ACTUAL -->
+    <section id="panorama" class="overview">
+      <div class="section-head">
+        <div><p class="kicker">Lectura actual a 14 días</p><h2>Riesgo de pico por serie</h2></div>
+        <p id="lastOfficial" class="data-caption">Datos oficiales en carga</p>
+      </div>
+      <div id="alertCards" class="alert-grid" aria-live="polite"></div>
+    </section>
+
+    <!-- 2. EVALUACIÓN Y COMPARACIÓN DE MODELOS (SEMANA 3) -->
+    <section id="modelos" class="models-section">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Ciencia de Datos · Semana 3</p>
+          <h2>Comparación de Modelos</h2>
+        </div>
+        <div class="model-switch" role="group" aria-label="Elegir serie para modelos">
+          <button class="segment active" data-series="negra">Papa negra</button>
+          <button class="segment" data-series="criolla">Papa criolla</button>
+        </div>
+      </div>
+      <div class="models-intro">
+        <p>Evaluación con <strong>validación temporal walk-forward</strong> (sin fuga de datos hacia el futuro). Meta del anteproyecto: <strong>superar la línea base en F1</strong> y alcanzar <strong>Recall &ge; 0.60</strong> en la detección de picos (>20% de alza).</p>
+      </div>
+      <div class="table-container">
+        <table class="models-table" id="modelsTable">
+          <thead>
+            <tr>
+              <th>Modelo</th>
+              <th>Tipo de Enfoque</th>
+              <th>F1-Score</th>
+              <th>Recall (Sensibilidad)</th>
+              <th>Precisión</th>
+              <th>PR-AUC</th>
+              <th>Anticipación</th>
+              <th>Meta (&ge;0.60)</th>
+            </tr>
+          </thead>
+          <tbody id="modelsTableBody">
+            <!-- Se llena dinámicamente con app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. EVOLUCIÓN HISTÓRICA DE PRECIOS -->
+    <section id="precios" class="price-section">
+      <div class="section-head compact">
+        <div><p class="kicker">Corabastos · Precios mayoristas diarios</p><h2>El pulso del mercado</h2></div>
+        <div class="chart-controls" role="group" aria-label="Elegir serie de precio">
+          <button class="segment active" data-series="negra">Papa negra</button>
+          <button class="segment" data-series="criolla">Papa criolla</button>
+        </div>
+      </div>
+      <div class="chart-shell">
+        <div class="chart-info"><span id="chartPrice">—</span><small>por kilogramo</small><strong id="chartChange">—</strong></div>
+        <svg id="priceChart" viewBox="0 0 1000 330" role="img" aria-label="Evolución de precio por kilogramo"></svg>
+      </div>
+      <div class="chart-foot"><span id="chartStart">—</span><span>Últimos 180 registros disponibles</span><span id="chartEnd">—</span></div>
+    </section>
+
+    <!-- 4. REPORTE DE CALIDAD E INGESTA (SEMANA 1 - BIG DATA) -->
+    <section id="calidad" class="quality-section">
+      <div class="quality-copy">
+        <p class="kicker">Procesamiento escalable · Semana 1</p>
+        <h2>Reporte de Calidad de Datos</h2>
+        <p>Pipeline de ingesta en streaming (XML iterparse) desde el servicio SOAP oficial del SIPSA y consulta paginada al IDEAM para garantizar consistencia temporal y trazabilidad sin datos ficticios.</p>
+      </div>
+      <div id="qualityCards" class="quality-grid"></div>
+    </section>
+
+    <!-- 5. LLUVIAS EN BOYACÁ Y CUNDINAMARCA (IDEAM) -->
+    <section id="lluvias" class="rain-section">
+      <div class="rain-copy">
+        <p class="kicker">Variable explicativa de oferta · IDEAM</p>
+        <h2>Monitoreo de Lluvias en Zonas de Origen</h2>
+        <p>Cundinamarca y Boyacá aportan ~65% de la producción de papa. Las precipitaciones intensas dificultan la recolección en finca y el transporte a Corabastos, impulsando alzas de precio.</p>
+        <a class="source-link" href="https://www.datos.gov.co/resource/s54a-sgyg.json" target="_blank" rel="noreferrer">Ver API IDEAM en Datos Abiertos <span>↗</span></a>
+      </div>
+      <div id="rainCards" class="rain-data"></div>
+    </section>
+
+    <!-- 6. METODOLOGÍA CRISP-DM Y DEFINICIONES -->
+    <section id="metodo" class="method-section">
+      <div class="method-title"><p class="kicker">Metodología CRISP-DM</p><h2>Diseño de solución y<br>criterio de alerta.</h2></div>
+      <div class="method-steps">
+        <article><span>01</span><h3>Comprensión del Negocio</h3><p>Anticipación a 14 días para comerciantes, restaurantes y productores con aviso temprano explicable frente a shocks de oferta.</p></article>
+        <article><span>02</span><h3>Ingesta y Calidad</h3><p>SOAP 1.2 SIPSA (700k+ registros) + Socrata IDEAM. Imputación controlada de no-comerciales y ventanas móviles de 7, 14 y 30 días.</p></article>
+        <article><span>03</span><h3>Modelado Predictivo</h3><p>Comparación de Línea Base, Regresión Logística y Gradient Boosting con umbrales calibrados para priorizar recall sobre picos.</p></article>
+        <article><span>04</span><h3>Tablero y Despliegue</h3><p>Entrega interactiva con indicadores de probabilidad, factores determinantes y trazabilidad abierta de fuentes oficiales.</p></article>
+      </div>
+    </section>
+
+    <!-- 7. FUENTES Y TRAZABILIDAD -->
+    <section class="sources-section">
+      <div><p class="kicker">Trazabilidad Oficial</p><h2>Datos abiertos,<br>origen transparente.</h2></div>
+      <div id="sourceList" class="source-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-meta">
+      <strong>ETITC · Escuela Tecnológica Instituto Técnico Central</strong>
+      <span>Ciencia de Datos y Big Data · Docente: Karen Paola Martínez Orjuela</span>
+      <span>Integrantes: Cristian Camilo Espinosa Rojas · Michael Alexander Pinzón Villalobos · Juan Esteban Joven Isaza</span>
+    </div>
+    <div class="footer-doc">
+      <span>Anteproyecto: <code>Corabastos_Joven_Espinosa_Pinzon.pdf</code></span>
+      <span>Fuentes: DANE SIPSA & IDEAM</span>
+    </div>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
